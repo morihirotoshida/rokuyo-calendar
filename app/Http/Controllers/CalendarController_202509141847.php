@@ -51,16 +51,18 @@ class CalendarController extends Controller
         $rokuyo_events = [];
         for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
             
-            $rokuyo = $this->rokuyoCalculator->getRokuyo($date);
+            // 全ての日の六曜を強制的に '大安' に設定します。
+            // $rokuyo = $this->rokuyoCalculator->getRokuyo($date);
+            $rokuyo = '大安';
 
             $rokuyo_events[] = [
                 'id' => 'rokuyo_' . $date->format('Y-m-d'),
                 'title' => $rokuyo,
                 'start' => $date->format('Y-m-d'),
                 // --- ▼▼▼ 修正箇所 ▼▼▼ ---
-                // この行を元に戻すことで、六曜を「背景」として扱い、
-                // 予定が隠れないようにします。
-                'display' => 'background', 
+                // この 'display' => 'background' の行を削除（またはコメントアウト）することで、
+                // 背景色ではなく文字として表示されるようになります。
+                // 'display' => 'background', 
                 // --- ▲▲▲ 修正箇所 ▲▲▲ ---
                 'is_rokuyo' => true
             ];

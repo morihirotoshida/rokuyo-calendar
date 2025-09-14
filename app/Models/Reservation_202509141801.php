@@ -10,33 +10,34 @@ class Reservation extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * 複数代入可能な属性
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'event_name',
-        'start_time',
-        'end_time',
-        'user_id', // Add this line
+        'title',
+        'start', // startカラムを許可
+        'end',   // endカラムを許可
     ];
 
     /**
-     * The attributes that should be cast to native types.
+     * ネイティブなタイプへキャストする属性
+     * ★★ startとendをdatetimeオブジェクトとして扱うように設定 ★★
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time'   => 'datetime',
+        'start' => 'datetime',
+        'end' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the reservation.
+     * この予約を所有するユーザーを取得
      */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 }
+
 

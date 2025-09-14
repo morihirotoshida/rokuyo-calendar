@@ -169,12 +169,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return { html: `<a class="fc-daygrid-day-number">${arg.dayNumberText}</a>` };
         },
-        // --- ▼▼▼ 修正箇所 ▼▼▼ ---
-        // イベントデータの取得と描画が完了した後に、カレンダーを再描画して六曜を確実に表示させます。
-        eventsSet: function(info) {
-             calendar.render();
+        datesSet: function(dateInfo) {
+            setTimeout(() => {
+                let allEvents = calendar.getEvents();
+                document.querySelectorAll('.fc-daygrid-day').forEach(dayEl => {
+                    const dateStr = dayEl.getAttribute('data-date');
+                    if (!dateStr) return;
+
+                    dayEl.classList.remove('fc-day-taian', 'fc-day-butsumetsu');
+
+                    const rokuyoEvent = allEvents.find(event =>
+                        event.startStr === dateStr && event.extendedProps.is_rokuyo
+                    );
+
+                    if (rokuyoEvent) {
+                        if (rokuyoEvent.title === '大安') {
+                            dayEl.classList.add('fc-day-taian');
+                        } else if (rokuyoEvent.title === '仏滅') {
+                            dayEl.classList.add('fc-day-butsumetsu');
+                        }
+                    }
+                });
+            }, 100);
         },
-        // --- ▲▲▲ 修正箇所 ▲▲▲ ---
         eventContent: function(arg) {
             return !arg.event.extendedProps.is_rokuyo;
         },
@@ -251,8 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-
 
 </body>
 </html>

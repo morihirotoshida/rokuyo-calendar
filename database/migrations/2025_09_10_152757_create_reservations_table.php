@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ユーザーとの関連付け
-            $table->string('title'); // 予約内容
-            
-            // ★★ カラムをDATETIME型に変更 ★★
-            $table->dateTime('start'); // 開始日時
-            $table->dateTime('end');   // 終了日時
-
+            // --- ▼▼▼ ここを 'summary' から 'event_name' に変更しました ▼▼▼ ---
+            $table->string('event_name');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -32,4 +30,3 @@ return new class extends Migration
         Schema::dropIfExists('reservations');
     }
 };
-

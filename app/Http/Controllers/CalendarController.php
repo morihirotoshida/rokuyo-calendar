@@ -2,147 +2,127 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reservation;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use App\Models\Reservation;
 use App\Services\RokuyoCalculator;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CalendarController extends Controller
 {
-    private $rokuyoCalculator;
+    protected $rokuyoCalculator;
 
-    /**
-     * コンストラクタでRokuyoCalculatorを注入
-     */
     public function __construct(RokuyoCalculator $rokuyoCalculator)
     {
         $this->rokuyoCalculator = $rokuyoCalculator;
     }
 
-    /**
-     * カレンダービューを表示
-     */
     public function index()
     {
         return view('calendar');
     }
 
-    /**
-     * カレンダーに表示するイベント（予約と六曜）を取得
-     */
     public function getEvents(Request $request)
     {
         $request->validate([
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date'
+            'end_date' => 'required|date',
         ]);
 
         $start_date = Carbon::parse($request->input('start_date'))->startOfDay();
         $end_date = Carbon::parse($request->input('end_date'))->endOfDay();
 
-        // ユーザーの予約イベントを取得
-        $reservations = Reservation::where('user_id', $request->user()->id)
+        $reservations = Reservation::where('user_id', Auth::id())
             ->whereBetween('start_time', [$start_date, $end_date])
-            ->get()
-            ->map(function ($reservation) {
-                return [
-                    'id' => $reservation->id,
-                    'title' => $reservation->event_name,
-                    'start' => $reservation->start_time,
-                    'end' => $reservation->end_time,
-                    'color' => '#3498db',
-                    'extendedProps' => [
-                        'is_rokuyo' => false
-                    ]
-                ];
-            });
-
-        // 六曜イベントを生成
-        $rokuyoEvents = [];
-        $currentDate = $start_date->copy();
-        while ($currentDate <= $end_date) {
-            $rokuyoName = $this->rokuyoCalculator->getRokuyo($currentDate);
-            $rokuyoEvents[] = [
-                'id' => 'rokuyo-' . $currentDate->toDateString(),
-                'title' => $rokuyoName,
-                'start' => $currentDate->toDateString(),
-                'allDay' => true,
-                'extendedProps' => [
-                    'is_rokuyo' => true
-                ]
+            ->get();
+        
+        $events = [];
+        foreach ($reservations as $reservation) {
+            $events[] = [
+                'id' => $reservation->id,
+                'title' => $reservation->event_name,
+                'start' => $reservation->start_time,
+                'end' => $reservation->end_time,
+                'is_rokuyo' => false,
             ];
-            $currentDate->addDay();
+        }
+        
+        $rokuyo_events = [];
+        for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
+            
+            // 全ての日の六曜を強制的に '大安' に設定します。
+            $rokuyo = $this->rokuyoCalculator->getRokuyo($date);
+            //$rokuyo = '大安';
+
+            $rokuyo_events[] = [
+                'id' => 'rokuyo_' . $date->format('Y-m-d'),
+                'title' => $rokuyo,
+                'start' => $date->format('Y-m-d'),
+                // --- ▼▼▼ 修正箇所 ▼▼▼ ---
+                // この 'display' => 'background' の行を削除（またはコメントアウト）することで、
+                // 背景色ではなく文字として表示されるようになります。
+                // 'display' => 'background', 
+                // --- ▲▲▲ 修正箇所 ▲▲▲ ---
+                'is_rokuyo' => true
+            ];
         }
 
-        // 予約イベントと六曜イベントをマージ
-        $events = $reservations->concat($rokuyoEvents);
-
-        return response()->json($events);
+        return response()->json(array_merge($events, $rokuyo_events));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'event_name' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_time'
+            'start_time' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:start_time',
         ]);
+        
+        $validatedData['user_id'] = Auth::id();
 
-        $reservation = new Reservation();
-        $reservation->user_id = $request->user()->id;
-        $reservation->event_name = $request->input('event_name');
-        $reservation->start_time = Carbon::parse($request->input('start_time'), 'Asia/Tokyo')->utc();
-        $reservation->end_time = Carbon::parse($request->input('end_time'), 'Asia/Tokyo')->utc();
-        $reservation->save();
-
-        return response()->json([
-            'id' => $reservation->id,
-            'title' => $reservation->event_name,
-            'start' => $reservation->start_time,
-            'end' => $reservation->end_time,
-            'color' => '#3498db',
-        ]);
+        try {
+            $reservation = Reservation::create($validatedData);
+            return response()->json($reservation, 201);
+        } catch (\Exception $e) {
+            Log::error('Error saving reservation: ' . $e->getMessage());
+            return response()->json(['message' => 'Server error occurred.'], 500);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
-        $reservation = Reservation::where('user_id', $request->user()->id)->findOrFail($id);
+        $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->first();
 
-        $request->validate([
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found.'], 404);
+        }
+
+        $validatedData = $request->validate([
             'event_name' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_time'
+            'start_time' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:start_time',
         ]);
 
-        $reservation->event_name = $request->input('event_name');
-        $reservation->start_time = Carbon::parse($request->input('start_time'), 'Asia/Tokyo')->utc();
-        $reservation->end_time = Carbon::parse($request->input('end_time'), 'Asia/Tokyo')->utc();
-        $reservation->save();
-
-        return response()->json([
-            'id' => $reservation->id,
-            'title' => $reservation->event_name,
-            'start' => $reservation->start_time,
-            'end' => $reservation->end_time,
-            'color' => '#3498db',
-        ]);
+        try {
+            $reservation->update($validatedData);
+            return response()->json($reservation);
+        } catch (\Exception $e) {
+            Log::error('Error updating reservation: ' . $e->getMessage());
+            return response()->json(['message' => 'Server error occurred.'], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
-        $reservation = Reservation::where('user_id', $request->user()->id)->findOrFail($id);
-        $reservation->delete();
+        $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->first();
 
-        return response()->json(['message' => 'Event deleted successfully.']);
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found.'], 404);
+        }
+
+        $reservation->delete();
+        return response()->json(['message' => 'Reservation deleted.']);
     }
 }
 
