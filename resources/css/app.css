@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ここから下に追記してください */
+
+/* イベントバーの文字色と背景色を明示的に設定 */
+.fc-event {
+    color: white !important;
+    background-color: #3b82f6 !important; /* 青色の背景 */
+    border-color: #2563eb !important;     /* 枠線の色 */
+}
+
+/* 日付が含まれる親要素(.fc-daygrid-day-top)をFlexboxコンテナに */
+#calendar .fc-daygrid-day-top {
+    display: flex;
+    align-items: center; /* 日付と六曜を垂直方向中央揃えに */
+    justify-content: left;
+}
+
+/* 「大安」の日の背景色を変更する */
+.fc-day-taian {
+    background-color: #ffebee !important; /* 薄いクリーム色/黄色系 */
+}
+
+/* 日曜日の背景色を変更する */
+/* .fc-day-sun {
+    background-color: #f0fff4 !important;
+} */
+
+/* ★★ 新機能: 土曜日の背景色を変更する ★★ */
+/* .fc-day-sat {
+    background-color: #e3f2fd !important;
+} */
+
+/* イベントバーの中の文字色と背景色を明示的に設定 */
+.fc-event {
+    color: white !important;
+    background-color: #3b82f6 !important;
+    border-color: #2563eb !important;
+}
+
+/* 大安の日をハイライト */
+.fc-day-taian {
+    background-color: #fef9c3; /*ごく薄い黄色*/
+}
+
+/* ★★ 順番を指定: 日にちは1番目 ★★ */
+#calendar .fc-daygrid-day-number {
+    padding: 2px 5px !important;
+    order: 2;
+}
+
+/* ★★ 順番を指定: 六曜は2番目 ★★ */
+.rokuyo-text {
+    font-size: 0.8em;
+    color: #6b7280;
+    padding-right: 5px;
+    order: 1;
+}
