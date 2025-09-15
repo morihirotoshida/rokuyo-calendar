@@ -17,10 +17,10 @@
     font-size: 0.75em;
     color: #888; /* 文字色をグレーに */
 }
-
-/* --- ▼▼▼ このブロックを削除しました ▼▼▼ --- */
-/* .day-grid-bottom .rokuyo-text { ... } */
-/* --- ▲▲▲ このブロックを削除しました ▲▲▲ --- */
+.day-grid-bottom .rokuyo-text {
+     font-weight: normal; /* 下の六曜は通常の太さにする */
+     margin-left: 5px;
+}
 
 /* 日付番号と六曜を横並びにするための設定 */
 .fc .fc-daygrid-day-top {
@@ -65,6 +65,7 @@
     background-color: #ffebee !important; /* 大安専用の、より分かりやすい薄赤色 */
 }
 
+/* --- ▼▼▼ 必須のスタイル（ここからマージ） ▼▼▼ --- */
 /* 六曜イベントのコンテナ（青い線）を非表示にする */
 .rokuyo-event-hidden {
     border: none !important;

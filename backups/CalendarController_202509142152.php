@@ -7,7 +7,6 @@ use App\Models\Reservation;
 use App\Services\RokuyoCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class CalendarController extends Controller
 {
@@ -30,8 +29,8 @@ class CalendarController extends Controller
             'end_date' => 'required|date',
         ]);
 
-        $start_date = Carbon::parse($request->input('start_date'))->startOfDay();
-        $end_date = Carbon::parse($request->input('end_date'))->endOfDay();
+        $start_date = Carbon::parse($request->input('start_date'), config('app.timezone'))->startOfDay();
+        $end_date = Carbon::parse($request->input('end_date'), config('app.timezone'))->endOfDay();
 
         $reservations = Reservation::where('user_id', Auth::id())
             ->whereBetween('start_time', [$start_date, $end_date])
@@ -50,21 +49,15 @@ class CalendarController extends Controller
         
         $rokuyo_events = [];
         for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
-            
-            // 全ての日の六曜を強制的に '大安' に設定します。
-            // $rokuyo = $this->rokuyoCalculator->getRokuyo($date);
-            $rokuyo = '大安';
+            $rokuyo = $this->rokuyoCalculator->getRokuyo($date);
+            $lunarDay = $this->rokuyoCalculator->getLunarDay($date); // 旧暦の日を取得
 
             $rokuyo_events[] = [
                 'id' => 'rokuyo_' . $date->format('Y-m-d'),
                 'title' => $rokuyo,
                 'start' => $date->format('Y-m-d'),
-                // --- ▼▼▼ 修正箇所 ▼▼▼ ---
-                // この 'display' => 'background' の行を削除（またはコメントアウト）することで、
-                // 背景色ではなく文字として表示されるようになります。
-                // 'display' => 'background', 
-                // --- ▲▲▲ 修正箇所 ▲▲▲ ---
-                'is_rokuyo' => true
+                'is_rokuyo' => true,
+                'lunar_day' => $lunarDay, // データを追加
             ];
         }
 
@@ -85,7 +78,6 @@ class CalendarController extends Controller
             $reservation = Reservation::create($validatedData);
             return response()->json($reservation, 201);
         } catch (\Exception $e) {
-            Log::error('Error saving reservation: ' . $e->getMessage());
             return response()->json(['message' => 'Server error occurred.'], 500);
         }
     }
@@ -108,7 +100,6 @@ class CalendarController extends Controller
             $reservation->update($validatedData);
             return response()->json($reservation);
         } catch (\Exception $e) {
-            Log::error('Error updating reservation: ' . $e->getMessage());
             return response()->json(['message' => 'Server error occurred.'], 500);
         }
     }

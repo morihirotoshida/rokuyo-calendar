@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- カレンダーの基本スタイル --- */
+.fc-day-sat { background-color: #f0f8ff; } /* 土曜日: 薄い青色 */
+.fc-day-sun { background-color: #fff0f0; } /* 日曜日: 薄い赤色 */
+.fc-day-today { background-color: #fffde7 !important; } /* 今日: 薄い黄色 */
+
+/* --- 六曜のハイライトスタイル --- */
+.fc-day-taian { background-color: #fef9c3 !important; } /* 大安: 黄色 */
+.fc-day-butsumetsu { background-color: #fce4ec !important; } /* 仏滅: 薄いピンク色 */
+
+/* --- 六曜テキストのスタイル --- */
+.fc .fc-daygrid-day-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.rokuyo-text {
+    font-size: 0.75em;
+    color: #6b7280;
+    margin-left: 5px;
+}
+.fc-day-taian .rokuyo-text {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* --- 予定（イベント）のスタイル --- */
+.fc-event {
+    color: white !important;
+    background-color: #3b82f6 !important;
+    border-color: #2563eb !important;
+}
+

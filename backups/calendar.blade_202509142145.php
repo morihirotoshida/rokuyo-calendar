@@ -14,12 +14,21 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-    {{-- axiosはLaravelの標準機能に含まれているため、個別の読み込みは不要 --}}
+    {{-- Axios is loaded via Vite in app.js, so the CDN script is removed to prevent conflicts --}}
 
 </head>
 <body class="font-sans antialiased">
 <div class="min-h-screen bg-gray-100">
     @include('layouts.navigation')
+
+    <!-- Page Heading -->
+    @if (isset($header))
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                {{ $header }}
+            </div>
+        </header>
+    @endif
 
     <!-- Page Content -->
     <main>
@@ -70,7 +79,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DOM要素の取得
     const calendarEl = document.getElementById('calendar');
-    // ... (他のDOM要素取得は省略) ...
+    const eventModal = document.getElementById('event-modal');
     const saveEventBtn = document.getElementById('save-event-btn');
     const deleteEventBtn = document.getElementById('delete-event-btn');
     const cancelBtn = document.getElementById('cancel-btn');
@@ -81,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.getElementById('modal-title');
     const eventForm = document.getElementById('event-form');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -104,64 +112,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 failureCallback(error);
             });
         },
-        // dayCellContentは日付番号の表示のみに専念させ、処理の競合を防ぎます。
+        // --- ▼▼▼ ロジックを簡素化・集約 ▼▼▼ ---
         dayCellContent: function(arg) {
+            // 左上の日付と六曜の表示
+            const rokuyoEvent = calendar.getEvents().find(e => e.startStr === arg.date.toISOString().slice(0,10) && e.extendedProps.is_rokuyo);
+            if (rokuyoEvent) {
+                return { html: `<a class="fc-daygrid-day-number">${arg.dayNumberText}</a><span class="rokuyo-text">${rokuyoEvent.title}</span>` };
+            }
             return { html: `<a class="fc-daygrid-day-number">${arg.dayNumberText}</a>` };
         },
-
-        // eventsSetに、六曜に関する全ての表示処理を集約します。
-        // これが最も安全で確実な方法です。
         eventsSet: function() {
+            // この関数はイベントが全て読み込まれた後に実行されるので、DOM操作に最も安全です
             document.querySelectorAll('.fc-daygrid-day').forEach(dayEl => {
                 const dateStr = dayEl.getAttribute('data-date');
                 if (!dateStr) return;
 
-                // 既存の表示を一度リセット
+                // 描画の前に、前回の状態をクリーンアップ
                 dayEl.classList.remove('fc-day-taian', 'fc-day-butsumetsu');
-                const existingTopRokuyo = dayEl.querySelector('.rokuyo-text');
-                if (existingTopRokuyo) existingTopRokuyo.remove();
                 const existingBottomEl = dayEl.querySelector('.day-grid-bottom');
-                if (existingBottomEl) existingBottomEl.remove();
+                if (existingBottomEl) {
+                    existingBottomEl.remove();
+                }
 
-                // 対応する六曜イベントを探す
+                // 該当日の六曜イベントを探す
                 const rokuyoEvent = calendar.getEvents().find(e => e.startStr === dateStr && e.extendedProps.is_rokuyo);
 
                 if (rokuyoEvent) {
-                    // 1. 左上の六曜を追加
-                    const topEl = dayEl.querySelector('.fc-daygrid-day-top');
-                    if(topEl) {
-                        const rokuyoSpan = document.createElement('span');
-                        rokuyoSpan.classList.add('rokuyo-text');
-                        rokuyoSpan.innerText = rokuyoEvent.title;
-                        topEl.appendChild(rokuyoSpan);
-                    }
-
-                    // 2. 背景色の設定
+                    // 背景色を適用
                     if (rokuyoEvent.title === '大安') dayEl.classList.add('fc-day-taian');
                     if (rokuyoEvent.title === '仏滅') dayEl.classList.add('fc-day-butsumetsu');
 
-                    // 3. 左下の表示を追加
+                    // 左下の要素を作成して追加
                     const frameEl = dayEl.querySelector('.fc-daygrid-day-frame');
                     if (frameEl) {
                         const bottomEl = document.createElement('div');
                         bottomEl.classList.add('day-grid-bottom');
+                        const dayNumber = dayEl.querySelector('.fc-daygrid-day-number').innerText;
                         
-                        // --- ▼▼▼ この行を修正しました ▼▼▼ ---
-                        const day = new Date(dateStr).getDate(); // YYYY-MM-DD から日を取得
-                        bottomEl.innerHTML = `<span>${day}</span><span class="rokuyo-text">${rokuyoEvent.title}</span>`;
-                        // --- ▲▲▲ この行を修正しました ▲▲▲ ---
-
+                        bottomEl.innerHTML = `<span>${dayNumber}</span><span class="rokuyo-text">${rokuyoEvent.title}</span>`;
                         frameEl.appendChild(bottomEl);
                     }
                 }
             });
         },
+        // --- ▲▲▲ ロジックを簡素化・集約 ▲▲▲ ---
         eventContent: function(arg) {
-            // 六曜のイベント自体は予定バーとして表示しない
             return !arg.event.extendedProps.is_rokuyo;
         },
         eventClick: function(info) {
-            // (変更なし)
             if (info.event.extendedProps.is_rokuyo) {
                 info.jsEvent.preventDefault();
                 return;
@@ -177,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
             eventModal.classList.remove('hidden');
         },
         dateClick: function(info) {
-            // (変更なし)
             eventForm.reset();
             eventIdInput.value = '';
             startTimeInput.value = `${info.dateStr}T09:00`;
@@ -191,8 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calendar.render();
 
-    // モーダルのボタン処理
-    // ... (変更なし) ...
     function handleApiResponse(response) {
         calendar.refetchEvents();
         eventModal.classList.add('hidden');
@@ -237,6 +232,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+
 
 </body>
 </html>
