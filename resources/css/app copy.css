@@ -18,6 +18,10 @@
     color: #888; /* 文字色をグレーに */
 }
 
+/* --- ▼▼▼ このブロックを削除しました ▼▼▼ --- */
+/* .day-grid-bottom .rokuyo-text { ... } */
+/* --- ▲▲▲ このブロックを削除しました ▲▲▲ --- */
+
 /* 日付番号と六曜を横並びにするための設定 */
 .fc .fc-daygrid-day-top {
     display: flex;
@@ -61,38 +65,9 @@
     background-color: #ffebee !important; /* 大安専用の、より分かりやすい薄赤色 */
 }
 
-/* 六曜イベントの土台ごと非表示にする（空欄バグの修正） */
-.fc-daygrid-event-harness:has(.rokuyo-event-hidden) {
-    display: none !important;
-}
-
-/* --- イベントのスタイル --- */
-
-/* イベント全体をボタン風にする */
-.fc-daygrid-event {
-    background-color: #3b82f6 !important;
-    border-color: #2563eb !important;
-    color: white !important;
-    padding: 2px 5px;
-    border-radius: 4px;
-    margin-top: 0 !important;
-    /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
-    margin-bottom: 0 !important; /* イベント間の余白を0pxに */
-}
-
-/* イベントの前のドット(●)の色 */
-.fc-daygrid-event .fc-event-dot {
-    border-color: #dbeafe !important; /* ごく薄い青色 */
-}
-
-/* イベントの時間の文字色 */
-.fc-daygrid-event .fc-event-time {
-    color: white;
-}
-
-/* イベント名の文字スタイル */
-.fc-daygrid-event .fc-event-title {
-    color: white;
-    font-weight: 600; /* 少し太字 (semibold) */
+/* 六曜イベントのコンテナ（青い線）を非表示にする */
+.rokuyo-event-hidden {
+    border: none !important;
+    background-color: transparent !important;
 }
 

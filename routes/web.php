@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     
     // カレンダーページのルート
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+    // このコードも怪しい？
     Route::get('/calendar/events', [CalendarController::class, 'getEvents']);
     Route::post('/calendar/events', [CalendarController::class, 'store']);
     Route::put('/calendar/events/{id}', [CalendarController::class, 'update']);
