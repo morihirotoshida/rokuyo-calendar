@@ -113,8 +113,9 @@ class CalendarController extends Controller
             return response()->json(['message' => 'Reservation not found.'], 404);
         }
         $reservation->delete();
-        // このコードは、怪しい？
-        return response()->json(['message' => 'Reservation deleted.']);
+        // --- ▼▼▼ この行を修正しました ▼▼▼ ---
+        return response()->noContent(); // 成功（コンテンツなし）を返す
+        // --- ▲▲▲ この行を修正しました ▲▲▲ ---
     }
 }
 

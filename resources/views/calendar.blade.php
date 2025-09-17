@@ -135,15 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         const bottomEl = document.createElement('div');
                         bottomEl.classList.add('day-grid-bottom');
                         
-                        // --- ▼▼▼ この行を修正しました ▼▼▼ ---
                         const formattedLunarDate = rokuyoEvent.extendedProps.formatted_lunar_date; 
                         bottomEl.innerHTML = `<span>旧暦 ${formattedLunarDate}</span>`; // 六曜の表示を削除
-                        // --- ▲▲▲ この行を修正しました ▲▲▲ ---
                         
                         frameEl.appendChild(bottomEl);
                     }
                 }
-                // このコードも怪しい？
+                // This code will be bugs.
                 // const harnessEls = dayEl.querySelectorAll('.fc-daygrid-event-harness');
                 // harnessEls.forEach(harness => {
                 //     const link = harness.querySelector('a.rokuyo-event-hidden');
@@ -232,4 +230,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-

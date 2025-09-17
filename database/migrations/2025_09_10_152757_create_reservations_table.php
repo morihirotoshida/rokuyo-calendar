@@ -9,14 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+// database/migrations/xxxx_xx_xx_xxxxxx_create_reservations_table.php
+
     public function up(): void
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            // --- ▼▼▼ ここを 'summary' から 'event_name' に変更しました ▼▼▼ ---
             $table->string('event_name');
-            $table->dateTime('start_time');
-            $table->dateTime('end_time');
+            // --- ▼▼▼ ここを修正しました ▼▼▼ ---
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
+            // --- ▲▲▲ ここを修正しました ▲▲▲ ---
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

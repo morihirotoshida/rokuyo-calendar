@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 各日付マスを相対的な配置の基準点にする */
+.fc-daygrid-day-frame {
+    position: relative !important;
+}
+
+/* 左下に配置する要素のスタイル */
+.day-grid-bottom {
+    position: absolute !important;
+    bottom: 5px !important; /* 下からの距離 */
+    left: 5px !important;   /* 左からの距離 */
+    display: flex !important;
+    align-items: end !important;
+    font-size: 0.75em !important;
+    color: #888 !important; /* 文字色をグレーに */
+}
+
+/* 日付番号と六曜を横並びにするための設定 */
+.fc .fc-daygrid-day-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* 六曜テキスト用のカスタムスタイル */
+.rokuyo-text {
+    color: #888;
+    font-size: 0.75em;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* 仏滅の日を少し強調する
+.fc-day-butsumetsu .rokuyo-text {
+    color: #c95252;
+} */
+
+/* 大安の日を少し強調する */
+.fc-day-taian .rokuyo-text {
+    color: #527ac9;
+}
+
+/* 1. 基本となる曜日の色 */
+.fc-day-sat {
+    /* background-color: #f0f8ff; 土曜日: ごく薄い青色 */
+}
+.fc-day-sun {
+    /* background-color: #fff0f0; 日曜日: ごく薄い赤色 */
+}
+
+/* 2. 「今日」の色（曜日よりも優先） */
+.fc-day-today {
+    background-color: #f0f8ff !important; /* ごく薄い黄色 */
+}
+
+/* 3. 「大安」の色（「今日」や曜日よりも最優先） */
+.fc-day-taian {
+    background-color: #ffebee !important; /* 大安専用の、より分かりやすい薄赤色 */
+}
+
+/* 六曜イベントの土台ごと非表示にする（空欄バグの修正） */
+/* .fc-daygrid-event-harness:has(.rokuyo-event-hidden) {
+    display: none !important;
+} */
+
+/* --- イベントのスタイル --- */
+
+/* イベント全体をボタン風にする */
+.fc-daygrid-event {
+    background-color: #3b82f6 !important;
+    border-color: #2563eb !important;
+    color: white !important;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-top: 0 !important;
+    /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
+    margin-bottom: 0 !important; /* イベント間の余白を0pxに */
+}
+
+/* イベントの前のドット(●)の色 */
+.fc-daygrid-event .fc-event-dot {
+    border-color: #dbeafe !important; /* ごく薄い青色 */
+}
+
+/* イベントの時間の文字色 */
+.fc-daygrid-event .fc-event-time {
+    color: white;
+}
+
+/* イベント名の文字スタイル */
+.fc-daygrid-event .fc-event-title {
+    color: white;
+    font-weight: 600; /* 少し太字 (semibold) */
+}
+
+/* イベントを囲むコンテナの上下の余白を強制的に調整 */
+.fc-daygrid-event-harness {
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+
+/* イベント自体の余白は0に設定 */
+.fc-daygrid-event {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}

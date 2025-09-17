@@ -73,15 +73,14 @@
 
 .fc-daygrid-day-events .fc-daygrid-event-harness:first-child .fc-daygrid-event {
     background-color: lightgray !important;
-    border-color: #e4e4e4 !important;
+    border-color: rgb(228, 228, 228) !important;
     color: white !important;
     padding: 0;
     border-radius: 4px;
     margin-top: 0 !important;
     /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
     margin-bottom: 0 !important; /* イベント間の余白を0pxに */
-    /* border-style: none; */
-    /* border: 1px; */
+    border-style: none;
 }
 
 /* イベント全体をボタン風にする */

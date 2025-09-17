@@ -54,8 +54,8 @@
 
 /* イベント間の余白を調整（26px空欄バグの修正） */
 .fc-daygrid-event-harness {
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
 }
 .fc-daygrid-event {
     margin-top: 0 !important;
@@ -73,15 +73,13 @@
 
 .fc-daygrid-day-events .fc-daygrid-event-harness:first-child .fc-daygrid-event {
     background-color: lightgray !important;
-    border-color: #e4e4e4 !important;
+    border-color: lightgray !important;
     color: white !important;
-    padding: 0;
+    padding: 0px 5px;
     border-radius: 4px;
     margin-top: 0 !important;
     /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
     margin-bottom: 0 !important; /* イベント間の余白を0pxに */
-    /* border-style: none; */
-    /* border: 1px; */
 }
 
 /* イベント全体をボタン風にする */
@@ -97,11 +95,7 @@
 }
 
 /* イベントの前のドット(●)の色 */
-.fc-daygrid-event .fc-daygrid-event-dot {
-    border-color: #afd0ff !important; /* ごく薄い青色 */
+.fc-daygrid-event .fc-event-dot .fc-daygrid-event-dot {
+    color: #dbeafe !important; /* ごく薄い青色 */
 }
 
-/* .fc-daygrid-day-frame .fc-daygrid-day-top {
-    padding: 0 0 !important;
-    margin: 0 0 !important;
-} */
