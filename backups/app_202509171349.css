@@ -54,8 +54,8 @@
 
 /* イベント間の余白を調整（26px空欄バグの修正） */
 .fc-daygrid-event-harness {
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 .fc-daygrid-event {
     margin-top: 0 !important;
@@ -93,7 +93,7 @@
     border-radius: 4px;
     margin-top: 0 !important;
     /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
-    margin-bottom: 0 !important; /* イベント間の余白を0pxに */
+    margin-bottom: 4px !important; /* イベント間の余白を0pxに */
 }
 
 /* イベントの前のドット(●)の色 */

@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'ja',
-        fixedWeekCount: false,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
