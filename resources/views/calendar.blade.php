@@ -104,51 +104,52 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         },
         dayCellContent: function(arg) {
-            // 日付のHTMLを作成
-            let dayNumberHtml = `<a class="fc-daygrid-day-number">${arg.dayNumberText}</a>`;
-            
-            // 対応する六曜イベントを探す
-            const rokuyoEvent = calendar.getEvents().find(e => e.startStr === arg.date.toISOString().slice(0,10) && e.extendedProps.is_rokuyo);
-
-            // 六曜があれば、日付の横に追加
-            if (rokuyoEvent) {
-                return { html: dayNumberHtml + `<span class="rokuyo-text">${rokuyoEvent.title}</span>` };
-            }
-
-            return { html: dayNumberHtml };
+            return { html: `<a class="fc-daygrid-day-number">${arg.dayNumberText}</a>` };
         },
         eventsSet: function() {
-            // イベントが読み込まれた後に、背景色と左下の旧暦表示を設定
             document.querySelectorAll('.fc-daygrid-day').forEach(dayEl => {
                 const dateStr = dayEl.getAttribute('data-date');
                 if (!dateStr) return;
 
-                // 既存のスタイルと要素をリセット
                 dayEl.classList.remove('fc-day-taian', 'fc-day-butsumetsu');
+                const existingTopRokuyo = dayEl.querySelector('.rokuyo-text');
+                if (existingTopRokuyo) existingTopRokuyo.remove();
                 const existingBottomEl = dayEl.querySelector('.day-grid-bottom');
-                if (existingBottomEl) {
-                    existingBottomEl.remove();
-                }
+                if (existingBottomEl) existingBottomEl.remove();
 
-                // 対応する六曜イベントを探す
                 const rokuyoEvent = calendar.getEvents().find(e => e.startStr === dateStr && e.extendedProps.is_rokuyo);
 
                 if (rokuyoEvent) {
-                    // 背景色の設定
+                    const topEl = dayEl.querySelector('.fc-daygrid-day-top');
+                    if(topEl) {
+                        const rokuyoSpan = document.createElement('span');
+                        rokuyoSpan.classList.add('rokuyo-text');
+                        rokuyoSpan.innerText = rokuyoEvent.title;
+                        topEl.appendChild(rokuyoSpan);
+                    }
+
                     if (rokuyoEvent.title === '大安') dayEl.classList.add('fc-day-taian');
-                    
-                    // 左下の旧暦要素を作成して追加
+                    if (rokuyoEvent.title === '仏滅') dayEl.classList.add('fc-day-butsumetsu');
+
                     const frameEl = dayEl.querySelector('.fc-daygrid-day-frame');
                     if (frameEl) {
                         const bottomEl = document.createElement('div');
                         bottomEl.classList.add('day-grid-bottom');
                         
-                        const formattedLunarDate = rokuyoEvent.extendedProps.formatted_lunar_date;
-                        bottomEl.innerHTML = `<span>旧暦 ${formattedLunarDate}</span>`;
+                        const formattedLunarDate = rokuyoEvent.extendedProps.formatted_lunar_date; 
+                        bottomEl.innerHTML = `<span>旧暦 ${formattedLunarDate}</span>`; // 六曜の表示を削除
                         
                         frameEl.appendChild(bottomEl);
                     }
                 }
+                // This code will be bugs.
+                // const harnessEls = dayEl.querySelectorAll('.fc-daygrid-event-harness');
+                // harnessEls.forEach(harness => {
+                //     const link = harness.querySelector('a.rokuyo-event-hidden');
+                //     if (link) {
+                //         harness.style.display = 'none';
+                //     }
+                // });
             });
         },
         eventContent: function(arg) {

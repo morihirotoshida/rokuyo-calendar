@@ -93,7 +93,7 @@
     border-radius: 4px;
     margin-top: 0 !important;
     /* --- ▼▼▼ この行を修正しました ▼▼▼ --- */
-    margin-bottom: 0 !important; /* イベント間の余白を0pxに */
+    margin-bottom: 1px !important; /* イベント間の余白を1pxに */
 }
 
 /* イベントの前のドット(●)の色 */
